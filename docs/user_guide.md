@@ -353,6 +353,7 @@ Nested attributes (single and multi-level) are flattened to a flat list of attri
  !['EnvironmentalKeyPerformanceIndicator' entity contains two nested attributes](img/EKPI-entity.png)
  
 The `EnvironmentalKeyPerformanceIndicator` entity  contains two nested attributes - `calculationPeriod` and `organization`. These two attributes are transformed (i.e. flattened) to following three attributes:
+
 * `calculationPeriod.from`
 * `calculationPeriod.from`
 * `organization.name`

@@ -9,6 +9,7 @@ The following diagram depicts the architecture of Information Hub:
 Information Hub consists of several parts conceptually divided to components that push data toward the database (downstream), components involved in stored data retrieval and further processing (upstream) and components responsible for data persistence and storage. In addition the system provides supporting services for configuring, managing and monitoring the Information Hub and libraries contributing to greater extensibility and reusability. Below is a list of all services that form the Information Hub.
 
 Components involved in the downstream flow:
+
 * Data Collector
 * Data Writer
 * Data Broker
@@ -16,15 +17,18 @@ Components involved in the downstream flow:
 * Data Processor
 
 Components involved in the upstream flow:
+
 * Data Extractor
 * Data Broker	
 
 Storage components:
+
 * Short-Term Storage
 * Long-Term Storage
 * Configuration Service
 
 Supporting components:
+
 * Context Service
 * Instance Monitor
 * Data Collector Controller
