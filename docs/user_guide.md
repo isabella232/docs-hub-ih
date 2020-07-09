@@ -2,11 +2,11 @@
 
 ## Installation and Deployment
 
-Information Hub is distributed as a set of Docker images and can be deployed using Docker Compose tool. The [information-hub-docker](https://gitpixel.satrdlab.upv.es/xlab/information-hub-docker) repository provides Docker Compose projects for installing Information Hub and Elasticsearch. The installation is split into two parts (two Docker Compose projects) - Information Hub and Elasticsearch which are located in the `infhub` and `elastic` folder respectively. The `infhub` Docker Compose project installs Information Hub together with its prerequisites Apache Kafka and ZooKeeper. The `elastic` Docker Compose project installs Elasticsearch and Kibana version 7.2.0. Alternatively, a custom installation of Elasticsearch can be used (taking into account that the supported version of Elasticsearch is 7.2.x). All services of Information Hub are installed to the single machine and likewise Elastic services are installed to a single machine which can be the same or different than for Information Hub. The structure of the `information-hub-docker` repository
+Information Hub is distributed as a set of Docker images and can be deployed using Docker Compose tool. The [information-hub-docker](https://gitpixel.satrdlab.upv.es/xlab/information-hub-docker) repository provides Docker Compose projects for installing Information Hub and Elasticsearch. The installation is split into two parts (two Docker Compose projects) - Information Hub and Elasticsearch which are located in the `infhub` and `elastic` folder respectively. The `infhub` Docker Compose project installs Information Hub together with its prerequisites Apache Kafka and ZooKeeper. The `elastic` Docker Compose project installs Elasticsearch and Kibana version 7.2.0. Alternatively, a custom installation of Elasticsearch can be used (taking into account that the supported version of Elasticsearch is 7.2.x). All services of Information Hub are installed to the single machine and likewise Elastic services are installed to a single machine which can be the same or different than for Information Hub. The structure of the `information-hub-docker` repository is depicted below:
 
 ![information-hub-docker repository structure](img/information-hub-docker-repository.png)
 
-The Information Hub Docker Compose project also includes the AIS Data Collector service which collects AIS data from [AISHub](https://www.aishub.net/) data sharing service. The installation of this service is optional and requires an AISHub membership.
+The Information Hub Docker Compose project also includes an AIS Data Collector service which collects AIS data from [AISHub](https://www.aishub.net/) data sharing service. The installation of this service is optional and requires an AISHub membership.
 
 The Docker Compose deployment of Information Hub consists of the following services:
 
@@ -35,7 +35,7 @@ Requirements for the Information Hub installation are:
 
 - Docker
 - Docker Compose
-- Orion Context Broker for Orion Data Collector
+- Orion Context Broker (if Orion Data Collector will be used)
 
 The Information Hub installation has been tested on Ubuntu Linux 18.04 LTS and CentOS Linux 7.2 with Elasticsearch version 7.2.0.
 
@@ -84,7 +84,10 @@ elasticsearch    | [1]: max virtual memory areas vm.max_map_count [65530] is too
 
 you have to increase the `vm.max_map_count` limit.
 
-Kibana dashboard is available at the following address: http://ES_HOST:5601/app/kibana
+Kibana dashboard is available at the following address:
+```
+http://ES-HOST:5601/app/kibana
+```
 
 ### Installing Information Hub
 
@@ -129,6 +132,8 @@ Configuration settings are:
 - `orion-coll.notification.listener.port`: callback address of Orion Data Collector notification listener. The Collector subscribes to notifications from Orion Context Broker providing this address of an endpoint where Orion Context Broker should send notification messages to.
 
 - `orion-coll.notification.listener.port`: local port on which Orion Data Collector notification listener should listen.
+
+**Note**: Information Hub endpoint (`orion-coll.notification.callback.url`) must be accessible from Orion machine because Orion is sending notification messages to the Information Hub using POST requests.
 
 ##### log4j2.xml configuration file
 
@@ -352,11 +357,43 @@ Nested attributes (single and multi-level) are flattened to a flat list of attri
  
  !['EnvironmentalKeyPerformanceIndicator' entity contains two nested attributes](img/EKPI-entity.png)
  
-The `EnvironmentalKeyPerformanceIndicator` entity  contains two nested attributes - `calculationPeriod` and `organization`. These two attributes are transformed (i.e. flattened) to following three attributes:
+The `EnvironmentalKeyPerformanceIndicator` entity  contains two nested attributes - `calculationPeriod` and `organization` which are transformed (i.e. flattened) to three flat attributes as shown in the table below:
 
-* `calculationPeriod.from`
-* `calculationPeriod.from`
-* `organization.name`
+<table>
+  <thead>
+    <tr>
+      <th>Nested attributes</th>
+      <th>Flattened attributes</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>
+        <ul>
+          <li><code>calculationPeriod</code></li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li><code>calculationPeriod.from</code></li>
+          <li><code>calculationPeriod.to</code></li>
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <ul>
+          <li><code>organization</code></li>
+        </ul>
+      </td>
+      <td>
+        <ul>
+          <li><code>organization.name</code></li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 The resulting data record is depicted in the figure below as it is shown in Kibana.
 
