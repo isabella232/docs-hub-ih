@@ -1,5 +1,3 @@
-# User's Guide
-
 ## Installation and Deployment
 
 Information Hub is distributed as a set of Docker images and can be deployed using Docker Compose tool. The [information-hub-docker](https://gitpixel.satrdlab.upv.es/xlab/information-hub-docker) repository provides Docker Compose projects for installing Information Hub and Elasticsearch. The installation is split into two parts (two Docker Compose projects) - Information Hub and Elasticsearch which are located in the `infhub` and `elastic` folder respectively. The `infhub` Docker Compose project installs Information Hub together with its prerequisites Apache Kafka and ZooKeeper. The `elastic` Docker Compose project installs Elasticsearch and Kibana version 7.2.0. Alternatively, a custom installation of Elasticsearch can be used (taking into account that the supported version of Elasticsearch is 7.2.x). All services of Information Hub are installed to the single machine and likewise Elastic services are installed to a single machine which can be the same or different than for Information Hub. The structure of the `information-hub-docker` repository is depicted below:
@@ -280,20 +278,56 @@ Each data source has a corresponding data model which is stored in Orion as a `D
 
 ![Schema of 'TideSensorObserved' data model](img/TideSensorObserved-schema.png)
 
-The schema is stored in Orion as a `value` attribute of a `DataModel` entity with an ID corresponding to the Orion entity type (e.g. `TideSensorObserved`).
+The schema can be specified in the `DataModel` entity in three different ways:
+
+* By providing schema URL using the `schemaUrl` attribute:
 ```
 {
-   "id": "<Orion type>",
-   "type": "DataModel",
-   "schema": {
-      "type": "StructuredValue",
-      "value": {<schema content>},
-      "metadata": {}
-   }
+    "id": "<Orion type>",
+    "type": "DataModel",
+    "schemaUrl": {
+        "type": "string",
+        "value": "<schema URL>",
+        "metadata": {}
+    }
 }
 ```
 
-The `DataModel` entity for the `TideSensorObserved` Orion type is depicted below:
+* By embedding schema into the `DataModel` entity as a JSON object using the `schema` attribute: 
+```
+{
+    "id": "<Orion type>",
+    "type": "DataModel",
+    "schema": {
+        "type": "StructuredValue",
+        "value": <schema JSON object>,
+        "metadata": {}
+    }
+}
+```
+
+* By embedding schema into the `DataModel` entity as URL encoded string using the `schemaEncoded` attribute: 
+```
+{
+    "id": "<Orion type>",
+    "type": "DataModel",
+    "schemaEncoded": {
+        "type": "STRING_URL_ENCODED",
+        "value": "<URL encoded schema>",
+        "metadata": {}
+    }
+}
+```
+
+If a `DataModel` entity contains more than one attribute of the ones listed above, following priority list is used:
+
+1. `schemaUrl`
+
+2. `schema`
+
+3. `schemaEncoded`
+
+Following figure depicts the `DataModel` entity for the `TideSensorObserved` Orion type. The schema is specified by URL using the `schemaUrl` attribute.
 
 !['DataModel' entity for 'TideSensorObserved' Orion type](img/TideSensorObserved-datamodel-entity.png)
 
@@ -311,7 +345,9 @@ When Information Hub receives a notification from Orion about new data source, f
 
 - IH retrieves the `DataModel` entity with specified ID. If the `DataModel` entity is not available, import of the data source will fail.
 
-- IH extracts schema from the `DataModel` entity, parses it and retrieves referenced external schemas if any
+- IH retrieves schema from the provided URL in case `schemaUrl` attribute is given in the `DataModel` entity or extracts schema from the  `DataModel` entity in case `schema` or `schemaEncoded` attribute is given
+
+- IH parses the schema and retrieves referenced external schemas if any.
 
 - IH registers a data source type corresponding to the data model (Orion type) if not yet registered. Name of the data source type matches the model name (which matches Orion type) where forbidden character slash `/` is replaced with colon `:`.
 
