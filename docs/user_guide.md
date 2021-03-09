@@ -439,20 +439,44 @@ The resulting data record is depicted in the figure below as it is shown in Kiba
 
 Data Extractor module of Information Hub provides a REST API for retrieving information about registered data sources and source types, retrieving time-series data from a selected data source using specified filters...
 
-Data Extractor API is available by default at the following endpoint:
+The Data Extractor API is available at the following endpoint:
 ```
-http://<IH-HOST>:8080/extractor
+https://172.29.1.5:443/extractor/v1/
+```
+
+Internal address in 'core_ih_public' network:
+```
+http://172.25.1.17:8080/archivingSystem/extractor/v1/
 ```
 
 ### Retrieving List of Registered Data Sources
 
-To retrieve a list of all registered data sources in Information Hub, use the `GET /sources` operation. The response contains list of data sources and for each source following attributes:
+To retrieve a list of all registered data sources in Information Hub, use the `GET /sources` operation. The response contains list of data sources and following attributes for each data source:
 
 - `sourceId`: source ID
 
 - `sourceTypeId`: ID of corresponding source type in Information Hub
 
-![Retrieving list of registered data sources](img/retrieving-list-of-sources.png)
+Example:
+```
+curl https://172.29.1.5:443/extractor/v1/sources
+```
+
+Response:
+```
+[
+  {
+    "sourceId": "urn:pixel:DataSource:Ping",
+    "sourceTypeId": "Ping",
+    "indexName": "arh-lts-ping"
+  },
+  {
+    "sourceId": "urn:pixel:DataSource:frbod:TideSensorObserved",
+    "sourceTypeId": "TideSensorObserved",
+    "indexName": "arh-lts-tidesensorobserved"
+  }
+]
+```
 
 ### Retrieving Info about Specific Data Source
 
@@ -466,11 +490,29 @@ To retrieve detailed information about a specific data source, use the `GET /sou
 
 - `orionSourceId`: originating Orion source
 
+- `indexName`: name of the Elasticsearch index where data is stored. Note: all data sources of the same source type are stored in the same Elasticsearch index.
+
 - `archived`: boolean value specifying whether source data is being archived (stored to Elasticsearch)
 
 - `collected`: boolean value specifying whether source data is being collected by the Data Collector
 
-![Retrieving info about specific data source](img/retrieving-info-about-source.png)
+Example:
+```
+curl https://172.29.1.5:443/extractor/v1/sources/urn:pixel:DataSource:frbod:TideSensorObserved
+```
+
+Response:
+```
+{
+  "sourceId": "urn:pixel:DataSource:frbod:TideSensorObserved",
+  "sourceTypeId": "TideSensorObserved",
+  "model": "TideSensorObserved",
+  "orionSourceId": "urn:pixel:DataSource:frbod:TideSensorObserved",
+  "indexName": "arh-lts-tidesensorobserved",
+  "archived": true,
+  "collected": true
+}
+```
 
 ### Retrieving List of Registered Sources Types
 
@@ -482,7 +524,26 @@ To retrieve a list of all data source types in Information Hub, use the `GET /so
 
 - `collectorType`: type of Data Collector used by Information Hub to collect data from source of this source type (e.g. Orion Data Collector, AIS Data Collector)
 
-![Retrieving a list of registered sources types](img/retrieving-list-of-source-types.png)
+Example:
+```
+curl https://172.29.1.5:443/extractor/v1/sourceTypes
+```
+
+Response:
+```
+[
+  {
+    "sourceTypeId": "Ping",
+    "model": "Ping",
+    "collectorType": "OrionCollector"
+  },
+  {
+    "sourceTypeId": "TideSensorObserved",
+    "model": "TideSensorObserved",
+    "collectorType": "OrionCollector"
+  }
+]
+```
 
 ### Retrieving Info about Specific Source Type
 
@@ -508,9 +569,186 @@ To retrieve detailed information about a specific data source type, use the `GET
 
 - `collectorType`: type of Data Collector used by Information Hub to collect data from source of this source type (e.g. Orion Data Collector, AIS Data Collector)
 
-![Retrieving info about specific source type](img/retrieving-info-about-source-type.png)
+Example:
+```
+curl https://172.29.1.5:443/extractor/v1/sourceTypes/TideSensorObserved
+```
 
-### Retrieving Time-Series Data
+Response:
+```
+{
+  "sourceTypeId": "TideSensorObserved",
+  "fields": [
+    {
+      "name": "address",
+      "primaryDataType": "OBJECT",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "dateCreated",
+      "primaryDataType": "DATE",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "water_trend",
+      "primaryDataType": "KEYWORD",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "areaServed",
+      "primaryDataType": "STRING",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "name",
+      "primaryDataType": "STRING",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "dateModified",
+      "primaryDataType": "DATE",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "location",
+      "primaryDataType": "GEOLOCATION",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "source",
+      "primaryDataType": "STRING",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "dataProvider",
+      "primaryDataType": "STRING",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "water_height",
+      "primaryDataType": "INTEGER",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    },
+    {
+      "name": "observed",
+      "primaryDataType": "DATE",
+      "secondaryDataType": null,
+      "collected": true,
+      "searchable": false
+    }
+  ],
+  "model": "TideSensorObserved",
+  "schema": {
+    "location": {
+      "$ref": "http://geojson.org/schema/Geometry.json#",
+      "description": "The geo:json location of the data"
+    },
+    "address": {
+      "type": "object",
+      "properties": {
+        "streetAddress": {
+          "type": "string"
+        },
+        "addressLocality": {
+          "type": "string"
+        },
+        "addressRegion": {
+          "type": "string"
+        },
+        "addressCountry": {
+          "type": "string"
+        },
+        "postalCode": {
+          "type": "string"
+        },
+        "postOfficeBoxNumber": {
+          "type": "string"
+        },
+        "areaServed": {
+          "type": "string"
+        }
+      }
+    },
+    "areaServed": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique identifier : urn:ngsi:TideSensorObserved:sensorname:date"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "TideSensorObserved"
+      ],
+      "description": "value is TideSensorObserved"
+    },
+    "dataProvider": {
+      "type": "string",
+      "description": "Specifies the URL to information about the provider of this information"
+    },
+    "source": {
+      "type": "string",
+      "description": "The urn of the PIXEL data source"
+    },
+    "dateModified": {
+      "type": "string",
+      "format": "date-time",
+      "description": "AUTO The date of the last modification - managed by ORION"
+    },
+    "dateCreated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "AUTO The date of the creation of teh entity - managed by ORION"
+    },
+    "observed": {
+      "type": "string",
+      "format": "date-time",
+      "description": "date of the observation"
+    },
+    "name": {
+      "type": "string",
+      "description": "The ship name"
+    },
+    "water_height": {
+      "type": "integer",
+      "description": "Water height measure by sensor"
+    },
+    "water_trend": {
+      "type": "string",
+      "enum": [
+        "down",
+        "up",
+        "stall"
+      ],
+      "description": "The trend of the water height"
+    }
+  },
+  "collectorType": "OrionCollector"
+}
+```
+
+### Retrieving Data Source Data (Time-Series)
 
 To retrieve data for a specific data source in a specific time interval, use the `POST /data` operation. The query is specified in the POST body and can contain following parameters:
 
@@ -522,11 +760,11 @@ To retrieve data for a specific data source in a specific time interval, use the
 
     - `fieldName`
 
-    - `condition`: possible values are `equal`, `notEqual`, `equalOrGreater`, `equalOrLower`, `greater`, `lower`, `oneOf`
+    - `condition`: possible values are `equal`, `notEqual`, `equalOrGreater`, `equalOrLower`, `greater`, `lower`, `matches`, `oneOf`
 
     - `value`
 
-- `timeIntervals` (optional): array of time intervals for which to return data (applies to the timestamp attribute - time when record was stored to the IH)
+- `timeIntervals` (optional): array of time intervals for which to return data. Applies to the record's timestamp attribute - timestamp when record was stored to the Information Hub. Timestamp has to be specified in milliseconds format.
 
 - `storageTypes` (optional): storage types to include in the search. Possible values are `STS` (short-term storage) and `LTS` (long-term storage).
 
@@ -537,9 +775,118 @@ Accept: application/json | text/csv
 
 If `Accept` header is not specified, data is returned in JSON format.
 
-The figure below depicts a query for retrieving tide sensor measurements from `FR_BOD:TideSensor` source with `name`, `observed`, `water_height` and `water_height` fields where `water_height` value is greater than 400. Requested data format is JSON.
+#### Example #1:
 
-![Retrieving time-series data](img/retrieving-time-series-data.png)
+Retrieve all data records stored to the Information Hub during the time period from Mon Mar 08 2021 00:00:00 CET (1615158000000 ms) to Mon Mar 08 2021 23:59:59 CET (1615244399000 ms):
+
+Request:
+```
+POST https://172.29.1.5:443/extractor/v1/data
+Content-Type: application/json
+{
+   "source": {
+      "sourceId": "urn:pixel:DataSource:frbod:TideSensorObserved"
+   },
+   "timeIntervals": [
+      {
+         "start": 1615158000000,
+         "end": 1615244399000
+      }
+   ]
+}
+```
+
+```
+curl --request POST 'https:///172.29.1.5:443/extractor/v1/data' --header 'Content-Type: application/json' --header 'Accept: application/json' --data-raw '{"source":{"sourceId":"urn:pixel:DataSource:frbod:TideSensorObserved"},"timeIntervals":[{"start":1615158000000, "end":1615244399000}]}'
+```
+
+Response:
+```
+[
+  {
+    "data": {
+      "water_trend": "up",
+      "name": "Le Verdon",
+      "location": {
+        "lon": 45.568436,
+        "lat": -1.061534
+      },
+      "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
+      "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "observed": 1615242720000
+    },
+    "links": {},
+    "timestamp": 1615221221228
+  },
+  {
+    "data": {
+      "water_trend": "down",
+      "name": "La Palmyre",
+      "location": {
+        "lon": 45.659164,
+        "lat": -1.145833
+      },
+      "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
+      "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "observed": 1615242720000
+    },
+    "links": {},
+    "timestamp": 1615221221236
+  }
+]
+```
+
+#### Example #2:
+
+Retrieve all measurements observed during the time period from Mon Mar 08 2021 00:00:00 CET (1615158000000 ms) to Mon Mar 08 2021 23:59:59 CET (1615244399000 ms):
+
+Request:
+```
+POST https://172.29.1.5:443/extractor/v1/data
+Content-Type: application/json
+{
+   "source": {
+      "sourceId": "urn:pixel:DataSource:frbod:TideSensorObserved"
+   },
+   "filters": [
+      {
+         "fieldName": "observed",
+         "condition": "greater",
+         "value": 1615158000000
+      },
+      {
+         "fieldName": "observed",
+         "condition": "lower",
+         "value": 1615244399000
+      }
+   ]
+}
+```
+
+```
+curl --request POST 'https:///172.29.1.5:443/extractor/v1/data' --header 'Content-Type: application/json' --header 'Accept: application/json' --data-raw '{"source":{"sourceId":"urn:pixel:DataSource:frbod:TideSensorObserved"},"filters":[{"fieldName":"observed","condition":"greater","value":1615158000000},{"fieldName":"observed","condition":"lower","value":1615244399000}]}'
+```
+
+Response:
+```
+[
+  {
+    "data": {
+      "water_trend": "up",
+      "name": "Bordeaux",
+      "location": {
+        "lon": 44.85998,
+        "lat": -0.552806
+      },
+      "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
+      "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "observed": 1615242720000
+    },
+    "links": {},
+    "timestamp": 1615242837488
+  }
+]
+```
 
 ### Retrieving latest data record for each sensor
 
@@ -551,9 +898,62 @@ To retrieve the latest data record for each sensor of a specific data source, us
 
 - `timestampField` (mandatory): name of the field containing the timestamp of sensor values
 
-The query to return latest data record for each tide sensor is depicted in figure below. The `name` field of `FR_BOD:TideSensor` data source contains name of the sensor which made the measurement and the `observed` field contains timestamp of the measurement.
+#### Example
 
-![Retrieving latest data record for each sensor](img/retrieving-latest-data-record-for-each-sensor.png)
+Retrieve latest data record for each tide sensor for the `urn:pixel:DataSource:frbod:TideSensorObserved` data source. The `name` field contains name of the sensor which made the measurement and the `observed` field contains timestamp of the measurement.
+
+Request:
+```
+POST https://172.29.1.5:443/extractor/v1/query/latestCollapseByField
+Content-Type: application/json
+{
+    "source": {
+        "sourceId": "urn:pixel:DataSource:frbod:TideSensorObserved"
+    },
+    "collapseField": "name",
+    "timestampField": "observed"
+}
+```
+
+```
+curl --request POST 'https://172.29.1.5:443/extractor/v1/query/latestCollapseByField' --header 'Content-Type: application/json' --header 'Accept: application/json' --data-raw '{"source":{"sourceId":"urn:pixel:DataSource:frbod:TideSensorObserved"},"collapseField":"name","timestampField":"observed"}'
+```
+
+Response:
+```
+[
+  {
+    "data": {
+      "water_trend": "up",
+      "name": "Le Verdon",
+      "location": {
+        "lon": 45.568436,
+        "lat": -1.061534
+      },
+      "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
+      "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "observed": 1615242720000
+    },
+    "links": {},
+    "timestamp": 1615221221228
+  },
+  {
+    "data": {
+      "water_trend": "down",
+      "name": "La Palmyre",
+      "location": {
+        "lon": 45.659164,
+        "lat": -1.145833
+      },
+      "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
+      "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "observed": 1615242720000
+    },
+    "links": {},
+    "timestamp": 1615221221236
+  }
+]
+```
 
 ## Elasticsearch Proxy Service
 
@@ -561,16 +961,98 @@ Information Hub provides a proxy service directly to Elasticsearch REST API whic
 
 Access to Elasticsearch is restricted. Only read access is allowed to indexes created and managed by Information Hub (indexes with `arh` prefix). Models are allowed to create their own indexes and have full access to them.
 
-Note: nested data from the DAL is stored to Elasticsearch by Information Hub in flattened form. When retrieving it through Elasticsearch proxy service it is not unflattened - you get it in flattened form. On the other hand, if you use Data Extractor API, Data Extractor takes care for transforming data to the original form.
-
-Elasticsearch is available by default at the following endpoint:
+Elasticsearch proxy API is available at the following endpoint:
 ```
-http://<IH-HOST>:8080/proxy/
+https://172.29.1.5:443/proxy/
 ```
 
-The figure below depicts a simple call of Elasticsearch REST API using curl tool:
+Internal address in 'core_ih_public' network:
+```
+http://172.25.1.20/
+```
 
-![Calling Elasticsearch REST API through proxy service](img/calling-es-api-through-proxy-service.png)
+#### Example #1
+
+Call Elasticsearch default endpoint:
+```
+curl https://172.29.1.5:443/proxy/
+```
+
+Response:
+```
+{
+  "name" : "elasticsearch",
+  "cluster_name" : "fair-elastic",
+  "cluster_uuid" : "uEOAw-caQka98gioDkfwBA",
+  "version" : {
+    "number" : "7.2.0",
+    "build_flavor" : "default",
+    "build_type" : "docker",
+    "build_hash" : "508c38a",
+    "build_date" : "2019-06-20T15:54:18.811730Z",
+    "build_snapshot" : false,
+    "lucene_version" : "8.0.0",
+    "minimum_wire_compatibility_version" : "6.8.0",
+    "minimum_index_compatibility_version" : "6.0.0-beta1"
+  },
+  "tagline" : "You Know, for Search"
+}
+```
+
+#### Example #2
+
+Retrieve data from 'arh-lts-tidesensorobserved' index (which contains data of type 'TideSensorObserved') for the 'urn:pixel:DataSource:frbod:TideSensorObserved' data source:
+```
+curl --request GET --header 'Content-Type: application/json' --data '{"query":{"term":{"sourceId":"urn:pixel:DataSource:frbod:TideSensorObserved"}}}' https://172.29.1.5:443/proxy/arh-lts-tidesensorobserved/_search
+```
+
+Response:
+```
+{
+   "took": 0,
+   "timed_out": false,
+   "_shards": {
+      "total": 1,
+      "successful": 1,
+      "skipped": 0,
+      "failed": 0
+   },
+   "hits": {
+      "total": {
+         "value": 220,
+         "relation": "eq"
+      },
+      "max_score": 0.006779687,
+      "hits": [
+         {
+            "_index": "arh-lts-tidesensorobserved",
+            "_type": "doc",
+            "_id": "urn:pixel:FRBOD:TideSensorObserved:Bordeaux:2021-03-08T23:32:00.000Z",
+            "_score": 0.006779687,
+            "_source": {
+               "sourceId": "urn:pixel:DataSource:frbod:TideSensorObserved",
+               "sourceTypeId": "TideSensorObserved",
+               "sourceRegId": "63c72374843ce3b4bd10ff3eef77a04f",
+               "timestamp": 1615246439516,
+               "data": {
+                  "water_trend": "up",
+                  "name": "Bordeaux",
+                  "location": {
+                     "lat": -0.552806,
+                     "lon": 44.85998
+                  },
+                  "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
+                  "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+                  "observed": 1615246320000
+               },
+               "links": {}
+            }
+         },
+         ...
+      ]
+   }
+}
+```
 
 ## Information Hub Management Console
 
