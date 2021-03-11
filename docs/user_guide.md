@@ -777,7 +777,7 @@ If `Accept` header is not specified, data is returned in JSON format.
 
 #### Example #1:
 
-Retrieve all data records stored to the Information Hub during the time period from Mon Mar 08 2021 00:00:00 CET (1615158000000 ms) to Mon Mar 08 2021 23:59:59 CET (1615244399000 ms):
+Retrieve all data records stored to the Information Hub during the time period from Mon Mar 08 2021 00:00:00 CET (1615158000000 ms) to Mon Mar 08 2021 23:59:59 CET (1615244399000 ms). The 'timestamp' attribute contains the timestamp when the data record was stored to the Information Hub. We use the 'timeIntervals' parameter to search by the record's timestamp.
 
 Request:
 ```
@@ -813,6 +813,7 @@ Response:
       },
       "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
       "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "water_height": 350,
       "observed": 1615242720000
     },
     "links": {},
@@ -828,17 +829,19 @@ Response:
       },
       "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
       "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "water_height": 390,
       "observed": 1615242720000
     },
     "links": {},
     "timestamp": 1615221221236
-  }
+  },
+  ...
 ]
 ```
 
 #### Example #2:
 
-Retrieve all measurements observed during the time period from Mon Mar 08 2021 00:00:00 CET (1615158000000 ms) to Mon Mar 08 2021 23:59:59 CET (1615244399000 ms):
+Retrieve all measurements observed by the 'Bordeaux' sensor during the time period from Mon Mar 08 2021 00:00:00 CET (1615158000000 ms) to Mon Mar 08 2021 23:59:59 CET (1615244399000 ms). The 'observed' attribute contains the timestap when the measurement was taken. Using the 'filters' parameter we specify three filters: the 'name' attribute must equal 'Bordeaux', the 'observed' attribute must lie between start and end datetime.
 
 Request:
 ```
@@ -849,6 +852,11 @@ Content-Type: application/json
       "sourceId": "urn:pixel:DataSource:frbod:TideSensorObserved"
    },
    "filters": [
+      {
+         "fieldName": "name",
+         "condition": "equal",
+         "value": "Bordeaux"
+      },
       {
          "fieldName": "observed",
          "condition": "greater",
@@ -864,7 +872,7 @@ Content-Type: application/json
 ```
 
 ```
-curl --request POST 'https:///172.29.1.5:443/extractor/v1/data' --header 'Content-Type: application/json' --header 'Accept: application/json' --data-raw '{"source":{"sourceId":"urn:pixel:DataSource:frbod:TideSensorObserved"},"filters":[{"fieldName":"observed","condition":"greater","value":1615158000000},{"fieldName":"observed","condition":"lower","value":1615244399000}]}'
+curl --request POST 'https:///172.29.1.5:443/extractor/v1/data' --header 'Content-Type: application/json' --header 'Accept: application/json' --data-raw '{"source":{"sourceId":"urn:pixel:DataSource:frbod:TideSensorObserved"},"filters":[{"fieldName":"name","condition":"equal","value":"Bordeaux"},{"fieldName":"observed","condition":"greater","value":1615158000000},{"fieldName":"observed","condition":"lower","value":1615244399000}]}'
 ```
 
 Response:
@@ -880,11 +888,13 @@ Response:
       },
       "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
       "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "water_height": 326,
       "observed": 1615242720000
     },
     "links": {},
     "timestamp": 1615242837488
-  }
+  },
+  ...
 ]
 ```
 
@@ -932,6 +942,7 @@ Response:
       },
       "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
       "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "water_height": 380,
       "observed": 1615242720000
     },
     "links": {},
@@ -947,11 +958,13 @@ Response:
       },
       "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
       "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+      "water_height": 362,
       "observed": 1615242720000
     },
     "links": {},
     "timestamp": 1615221221236
-  }
+  },
+  ...
 ]
 ```
 
@@ -1043,6 +1056,7 @@ Response:
                   },
                   "source": "urn:pixel:DataSource:frbod:TideSensorObserved",
                   "dataProvider": "https://nami.bordeaux-port.fr/hauteurs",
+                  "water_height": 355,
                   "observed": 1615246320000
                },
                "links": {}
