@@ -1,4 +1,4 @@
-## Installation and Deployment
+# Installation and Deployment
 
 Information Hub is distributed as a set of Docker images and can be deployed using Docker Compose tool. The [information-hub-docker](https://gitpixel.satrdlab.upv.es/xlab/information-hub-docker) repository provides Docker Compose projects for installing Information Hub and Elasticsearch. The installation is split into two parts (two Docker Compose projects) - Information Hub and Elasticsearch which are located in the `infhub` and `elastic` folder respectively. The `infhub` Docker Compose project installs Information Hub together with its prerequisites Apache Kafka and ZooKeeper. The `elastic` Docker Compose project installs Elasticsearch and Kibana version 7.2.0. Alternatively, a custom installation of Elasticsearch can be used (taking into account that the supported version of Elasticsearch is 7.2.x). All services of Information Hub are installed to the single machine and likewise Elastic services are installed to a single machine which can be the same or different than for Information Hub. The structure of the `information-hub-docker` repository is depicted below:
 
@@ -27,7 +27,7 @@ Additionally, the provided Docker Compose deployment of Elasticsearch & Kibana c
 | Elasticsearch | docker.elastic.co/elasticsearch/elasticsearch:7.2.0 |
 | Kibana | docker.elastic.co/kibana/kibana:7.2.0 |
 
-### Requirements
+## Requirements
 
 Requirements for the Information Hub installation are:
 
@@ -37,11 +37,11 @@ Requirements for the Information Hub installation are:
 
 The Information Hub installation has been tested on Ubuntu Linux 18.04 LTS and CentOS Linux 7.2 with Elasticsearch version 7.2.0.
 
-### Installing Elasticsearch
+## Installing Elasticsearch
 
 Clone or download the [information-hub-docker](https://gitpixel.satrdlab.upv.es/xlab/information-hub-docker) repository to your Linux server then go into the `elastic` folder inside the repository. The provided Docker Compose file will deploy Elasticsearch and Kibana version 7.2.0. Elasticsearch can be installed on the same or different machine than Information Hub.
 
-#### Prerequisites
+### Prerequisites
 
 The default operating system limits on virtual memory (`mmap counts`) is likely to be too low for Elasticsearch, which may result in out of memory exceptions. See [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/vm-max-map-count.html) for details.
 
@@ -55,7 +55,7 @@ In case the `vm.max_map_count` value is too low (recommended value is 262144), y
 sysctl -w vm.max_map_count=262144
 ```
 
-#### Start Elasticsearch
+### Start Elasticsearch
 
 To start the Elasticsearch together with Kibana, run the following command:
 ```
@@ -87,11 +87,11 @@ Kibana dashboard is available at the following address:
 http://ES-HOST:5601/app/kibana
 ```
 
-### Installing Information Hub
+## Installing Information Hub
 
 Clone or download the [information-hub-docker](https://gitpixel.satrdlab.upv.es/xlab/information-hub-docker) repository to your Linux server, go into the `infhub` folder inside the repository and follow the steps below. The provided Docker Compose file deploys Information Hub together with its prerequisites Apache Kafka and ZooKeeper to a single machine.
 
-#### Edit Configuration Files
+### Edit Configuration Files
 
 Before starting the deployment, check following configuration files and adjust them to your environment if needed:
 
@@ -99,7 +99,7 @@ Before starting the deployment, check following configuration files and adjust t
 - `infhub.properties`
 - `log4j2.xml`
 
-##### .env configuration file
+#### .env configuration file
 
 The `.env` file located in the `infhub` folder contains environment variables referenced in the Docker Compose file:
 
@@ -111,7 +111,7 @@ Configuration settings are:
 
 - `LTS_HOST`: IP address or hostname of Elasticsearch in the role of Long-Term Storage
 
-##### infhub.properties configuration file
+#### infhub.properties configuration file
 
 The `infhub.properties` configuration file located in the `infhub/config` folder contains configuration settings for Information Hub:
 
@@ -133,7 +133,7 @@ Configuration settings are:
 
 **Note**: Information Hub endpoint (`orion-coll.notification.callback.url`) must be accessible from Orion machine because Orion is sending notification messages to the Information Hub using POST requests.
 
-##### log4j2.xml configuration file
+#### log4j2.xml configuration file
 
 The `log4j2.xml` file located in the `infhub/config` folder contains Log4j logging configuration for Information Hub services:
 
@@ -141,7 +141,7 @@ The `log4j2.xml` file located in the `infhub/config` folder contains Log4j loggi
 
 The default logging level is `info` for Information Hub classes. Change to `debug` or `trace` level for more detailed logging information.
 
-#### Start Information Hub
+### Start Information Hub
 
 Start the Information Hub by running following command from the `infhub` folder inside the `information-hub-docker` repository:
 ```
@@ -156,7 +156,7 @@ Using the `docker-compose ps` command you can check the state of Information Hub
 
 After the Information Hub has started, it will subscribe to the data sources registry at Orion Context Broker (managed by the `DAL Inquisitor`), register data sources and import initial data records.
 
-### Installing AIS Data Collector (optional)
+## Installing AIS Data Collector (optional)
 
 **Note**: AISHub membership is required. Only AISHub members are allowed to access AISHub web service and retrieve AISHub data.
 
@@ -191,7 +191,7 @@ Alternatively, you can start Information Hub together with AIS Data Collector by
 ./infhub+ais.sh up -d
 ```
 
-### Installing Information Hub Management Console
+## Installing Information Hub Management Console
 
 Information Hub Management Console is a Java desktop application and is distributed as a ZIP archive containing an executable JAR package with dependencies and a configuration file. Java 8 is required to run it.
 
@@ -211,7 +211,7 @@ Path to the `infhub-management-console.properties` configuration file can be pro
 java -jar infhub-management-console-<version>.jar infhub-management-console.properties
 ```
 
-#### Configuration
+### Configuration
 
 Information Hub configuration is described in the [Edit Configuration Files](#edit-configuration-files) chapter and is carried out before Information Hub is started. After startup no further action is needed.
 
@@ -229,7 +229,7 @@ In addition to that, some configuration of Information Hub can be made via the I
 
 ![Settings View in Information Hub management console](img/ih-console-settings-view.png)
 
-#### Monitoring
+### Monitoring
 
 To verify that Information Hub services are up and running, execute the `docker-compose ps` command in the `information-hub-docker/inhub` folder from where Information Hub was started:
 
@@ -254,7 +254,7 @@ Information Hub Management console can be used for monitoring Information Hub co
 
 ![Displaying instances status in the Information Hub Management console](img/ih-console-instances-monitoring.png)
 
-#### Issues & Solution
+### Issues & Solution
 
 In case any issues arise, checking the Information Hub log files is the first step for determining the nature of the problem. Go to the `information-hub-docker/infhub` folder from where Information Hub has been started and use `docker-compose logs` command to view the application logs:
 
@@ -262,7 +262,7 @@ For example, to view the last lines of Orion Collector logs, use the command bel
 
 ![Viewing Information Hub logs](img/viewing-information-hub-logs.png)
 
-## Importing Data Sources from DAL to Information Hub
+# Importing Data Sources from DAL to Information Hub
 
 When started, Information Hub (specifically, Orion Data Collector) subscribes to the `DataSource` entity type in Orion Context Broker. The `DataSource` entities are managed by DAL Inquisitor and represent a registry of data sources available in Orion Context Broker. When a new data entity is created in Orion, DAL Inquisitor checks if the data source is already registered and creates a corresponding `DataSource` entity if needed. Because Information Hub is subscribed to the `DataSource` entity changes, Orion sends a notification message to the Information Hub's listener and thus notifies the Information Hub that a new data source has been created. The notification message contains the new `DataSource` entity.
 
@@ -385,7 +385,7 @@ The figure below depicts the data record stored in Elasticsearch and presented i
 
 !['TideSensorObserved' entity displayed in Kibana](img/TideSensorObserved-entity-in-kibana.png)
 
-### Data Flattening
+## Data Flattening
 
 Structured data (data with nested objects) is not supported by Information Hub and has to be flattened to flat structure. The data flattening process is performed by the Orion Data Collector module of Information Hub after retrieving from Orion. Data is stored to Elasticsearch in flattened form. When retrieving the data from Information Hub using Data extractor API, flattened data is transformed back to the original form so the whole process is transparent to the user.
 
@@ -435,7 +435,7 @@ The resulting data record is depicted in the figure below as it is shown in Kiba
 
 ![EnvironmentalKeyPerformanceIndicator record transformed to flat structure](img/EKPI-record-flattened.png)
 
-## Retrieving Data from Information Hub
+# Retrieving Data from Information Hub
 
 Data Extractor module of Information Hub provides a REST API for retrieving information about registered data sources and source types, retrieving time-series data from a selected data source using specified filters...
 
@@ -449,7 +449,7 @@ Internal address in 'core_ih_public' network:
 http://172.25.1.17:8080/archivingSystem/extractor/v1/
 ```
 
-### Retrieving List of Registered Data Sources
+## Retrieving List of Registered Data Sources
 
 To retrieve a list of all registered data sources in Information Hub, use the `GET /sources` operation. The response contains list of data sources and following attributes for each data source:
 
@@ -478,7 +478,7 @@ Response:
 ]
 ```
 
-### Retrieving Info about Specific Data Source
+## Retrieving Info about Specific Data Source
 
 To retrieve detailed information about a specific data source, use the `GET /sources/{sourceId}` operation. The response contains following attributes:
 
@@ -514,7 +514,7 @@ Response:
 }
 ```
 
-### Retrieving List of Registered Sources Types
+## Retrieving List of Registered Sources Types
 
 To retrieve a list of all data source types in Information Hub, use the `GET /sourceTypes` operation. The response contains list of data source types and for each source type following attributes:
 
@@ -545,7 +545,7 @@ Response:
 ]
 ```
 
-### Retrieving Info about Specific Source Type
+## Retrieving Info about Specific Source Type
 
 To retrieve detailed information about a specific data source type, use the `GET /sourceTypes/{typeId}` operation. The response contains following attributes:
 
@@ -748,7 +748,7 @@ Response:
 }
 ```
 
-### Retrieving Data Source Data (Time-Series)
+## Retrieving Data Source Data (Time-Series)
 
 To retrieve data for a specific data source in a specific time interval, use the `POST /data` operation. The query is specified in the POST body and can contain following parameters:
 
@@ -775,7 +775,7 @@ Accept: application/json | text/csv
 
 If `Accept` header is not specified, data is returned in JSON format.
 
-#### Example #1:
+### Example #1:
 
 Retrieve all data records stored to the Information Hub during the time period from Mon Mar 08 2021 00:00:00 CET (1615158000000 ms) to Mon Mar 08 2021 23:59:59 CET (1615244399000 ms). The 'timestamp' attribute contains the timestamp when the data record was stored to the Information Hub. We use the 'timeIntervals' parameter to search by the record's timestamp.
 
@@ -839,7 +839,7 @@ Response:
 ]
 ```
 
-#### Example #2:
+### Example #2:
 
 Retrieve all measurements observed by the 'Bordeaux' sensor during the time period from Mon Mar 08 2021 00:00:00 CET (1615158000000 ms) to Mon Mar 08 2021 23:59:59 CET (1615244399000 ms). The 'observed' attribute contains the timestap when the measurement was taken. Using the 'filters' parameter we specify three filters: the 'name' attribute must equal 'Bordeaux', the 'observed' attribute must lie between start and end datetime.
 
@@ -898,7 +898,7 @@ Response:
 ]
 ```
 
-### Retrieving latest data record for each sensor
+## Retrieving latest data record for each sensor
 
 To retrieve the latest data record for each sensor of a specific data source, use the `POST /query/latestCollapseByField` operation. The query is specified in the POST body and can contain following parameters:
 
@@ -908,7 +908,7 @@ To retrieve the latest data record for each sensor of a specific data source, us
 
 - `timestampField` (mandatory): name of the field containing the timestamp of sensor values
 
-#### Example
+### Example
 
 Retrieve latest data record for each tide sensor for the `urn:pixel:DataSource:frbod:TideSensorObserved` data source. The `name` field contains name of the sensor which made the measurement and the `observed` field contains timestamp of the measurement.
 
@@ -968,7 +968,7 @@ Response:
 ]
 ```
 
-## Elasticsearch Proxy Service
+# Elasticsearch Proxy Service
 
 Information Hub provides a proxy service directly to Elasticsearch REST API which is intended for dealing with data that doesn't originate from the DAL, i.e. to read and write results of models and predictive algorithms. Primarily it will be used by Operational Tools, PIXEL dashboard and models. Besides that, it enables users to make more advanced queries directly to Elasticsearch REST API.
 
@@ -984,7 +984,7 @@ Internal address in 'core_ih_public' network:
 http://172.25.1.20/
 ```
 
-#### Example #1
+### Example #1
 
 Call Elasticsearch default endpoint:
 ```
@@ -1012,7 +1012,7 @@ Response:
 }
 ```
 
-#### Example #2
+### Example #2
 
 Retrieve data from 'arh-lts-tidesensorobserved' index (which contains data of type 'TideSensorObserved') for the 'urn:pixel:DataSource:frbod:TideSensorObserved' data source:
 ```
@@ -1068,9 +1068,9 @@ Response:
 }
 ```
 
-## Information Hub Management Console
+# Information Hub Management Console
 
-### Overview
+## Overview
 
 The Information Hub Management Console is a desktop application developed in the Java programming language on top of the JavaFX platform. It is distributed in the form of a JAR file packed into a ZIP package together with the configuration file. For installation and configuration refer to the [Installing Information Hub Management Console](#installing-information-hub-management-console) chapter. The application provides graphic components for controlling, configuring and monitoring the Information Hub. It is intended for system operators that configure and monitor the operation of Information Hub, including:
 
@@ -1114,7 +1114,7 @@ The available content panels are:
 
 The Status area located at the bottom of the application window contains an always visible display of the most recent error or warning message and a status marker, showing the severity (red for error, yellow for warning and green for normal) of the client application or the Information Hub. The `Expand` button expands the status area to show several notification items instead of just one. The `Show log` button opens the client notifications panel, showing the complete list of recent messages (available also through the `Notifications` menu button). On the right-hand side of the Status area most recent client notification is displayed along with its status color. If no relevant client notifications are available, the message displays \"Client is synchronized with the system\".
 
-### Overview View
+## Overview View
 
 The Overview menu button opens the **Overview** view as depicted in figure below, this panel is also the default view when management console is started:
 
@@ -1128,7 +1128,7 @@ The panel contains following three sub-panels:
 
 - **Sources and source types**: shows list of registered source types, a source type can be expanded to show all sources of that type.
 
-### System View
+## System View
 
 The `System` menu button opens the **System** view as shown in the figure below:
 
@@ -1144,7 +1144,7 @@ The right-hand side sub panel consists of following three tabbed panels:
 
 - **Data flow**: displays Data flow and Records flow graphs. The Data flow graph shows the cumulative source data being processed by the instance in KB/s. The Records flow graph shows the cumulative number of records being processed by the instance every second.
 
-### Instances View
+## Instances View
 
 ![Instances view of Management console](img/ih-console-instances-view.png)
 
@@ -1160,7 +1160,7 @@ The **Instances** view displays a list of worker instances categorized by the ty
 
 - **Status**: the current status of the instance. Possible values are: OK (service is enabled and active), DISABLED (service is disabled and not active), NOT_RUNNING (service is enabled but not active), STANDBY (service is active but not enabled), ERROR (service encountered an error), WARNING (service is running, but encountered an abnormal event).
 
-### Sources View
+## Sources View
 
 The **Sources** view displays a list of all registered sources and source types, details for selected source or source type and enables you to configure selected source or source type. The figure below shows the **Sources** view when a source type is selected:
 
@@ -1208,13 +1208,13 @@ The figure below shows management console for selected data source when **Monito
 
 The **Records flow** graph shows the number of records from the selected source being processed by Information Hub. The **Data flow** graph shows the bandwidth of data (in KB per second) from the selected source being processed by Information Hub.
 
-### Storage View
+## Storage View
 
 The **Storage** view enables you to configure short-term and long-term storages and reduction algorithms. Its capabilities exceed the needs of sources originating from the DAL so we won't go into more details.
 
 ![Storage view of Management console](img/ih-console-storage-view.png)
 
-### Extraction View
+## Extraction View
 
 The **Extraction** view enables you to manage connected clients of Data Extractor instances. The panel on the left-hand side displays a list of clients that have been requesting data from Data Extractor instances. The right-hand side panel displays following information about the selected client:
 
@@ -1228,7 +1228,7 @@ The **Extraction** view enables you to manage connected clients of Data Extracto
 
 ![Extraction view of Management console](img/ih-console-extraction-view.png)
 
-### Notifications View
+## Notifications View
 
 The **Notifications** view displays the system and client (administration console) notification messages. Using the buttons on the top you can switch between the lists of system and client notifications.
 
@@ -1238,7 +1238,7 @@ The filter box on the bottom of the left panel allows filtering of notifications
 
 ![Notifications view of Management console](img/ih-console-notifications-view.png)
 
-### Settings View
+## Settings View
 
 The **Settings** view shows various configuration options for configuring Information Hub and management console. The **Connection Settings** panel depicted in figure below contains following elements:
 
