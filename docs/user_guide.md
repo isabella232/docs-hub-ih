@@ -87,6 +87,68 @@ Kibana dashboard is available at the following address:
 http://ES-HOST:5601/app/kibana
 ```
 
+### How to back up Elasticsearch data
+
+#### Register a snapshot repository
+
+More details can be found in the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-register-repository.html).
+
+The provided Docker Compose file mounts a backup location on the host machine (defined by the `ES_BACKUP_DIR` variable in `.env` file) to `/usr/share/elasticsearch/snapshots` directory inside the container. This backup location inside the container is registered in Elasticsearch config file `elasticsearch.yml` using `path.repo` setting:
+```
+path:
+  repo:
+    - /usr/share/elasticsearch/snapshots
+```
+
+As a result, the snapshots reside in `ES_BACKUP_DIR` directory in host machine file system.
+
+After Elasticsearch has been started, set the owner of `/usr/share/elasticsearch/snapshots` directory inside the Docker container to `elasticsearch` user (by default mounted directories are owned by root user) using the following command:
+```
+docker-compose exec elasticsearch chown elasticsearch:elasticsearch /usr/share/elasticsearch/snapshot
+```
+
+Afterwards register shared file system repository in Elasticsearch using following request which can be easily executed in Kibana's Dev Tools. The name `snapshots_repo` is used as a name of the snapshots repository:
+```
+PUT /_snapshot/snapshots_repo
+{
+  "type": "fs",
+  "settings": {
+    "location": "/usr/share/elasticsearch/snapshots",
+    "compress": true
+  }
+}
+```
+
+To check that 'snapshots_repo' repository exists, execute following request:
+```
+GET /_snapshot/snapshots_repo
+```
+
+#### Create a snapshot
+
+More details can be found in the [Elasticsearch documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/snapshots-take-snapshot.html).
+ 
+To create a snapshot with a name `snapshot_name` and store it in the snapshots repository with name `snapshots_repo`, execute following request in Kibana Dev Tools or using curl:
+```
+PUT /_snapshot/snapshots_repo/<snapshot_name>
+{
+  "indices": "*,-arh-lts-status,-arh-lts-notifications",
+  "ignore_unavailable": true
+}
+```
+
+The `arh-lts-status` and `arh-lts-notifications` indices (created by Information Hub) are excluded from the backup because they don't contain any important data. 
+
+The corresponding curl command is:
+```
+curl -XPUT "http://<elasticsearch-host>:9200/_snapshot/snapshots_repo/snapshot_name" -H 'Content-Type: application/json' -d'{  "indices": "*,-arh-lts-status,-arh-lts-notifications",  "ignore_unavailable": true}'
+```
+
+To check if snapshot has been created successfully and get detailed information about the snapshot, run:
+```
+GET /_snapshot/snapshots_repo/<snapshot_name>
+```
+
 ## Installing Information Hub
 
 Clone or download the [information-hub-docker](https://gitpixel.satrdlab.upv.es/xlab/information-hub-docker) repository to your Linux server, go into the `infhub` folder inside the repository and follow the steps below. The provided Docker Compose file deploys Information Hub together with its prerequisites Apache Kafka and ZooKeeper to a single machine.
