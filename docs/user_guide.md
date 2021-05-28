@@ -87,6 +87,23 @@ Kibana dashboard is available at the following address:
 http://ES-HOST:5601/app/kibana
 ```
 
+Furthermore, disable automatic index creation in Elasticsearch to prevent Elasticsearch creating an index automatically using dynamic mapping. In case an index is deleted manually in Elasticsearch, new one will be created automatically by Elasticsearch when new data is stored to Information Hub. Unfortunately, this new dynamically created index has incorrect mapping - not the same as original index created by Information Hub.
+
+To disable automatic index creation, run the following command:
+```
+curl -X PUT "http://ES_HOST:9200/_cluster/settings" -H 'Content-Type: application/json' -d'{"persistent":{"action.auto_create_index":"false"}}'
+```
+
+Or through Kibana console:
+```
+PUT _cluster/settings
+{
+  "persistent": {
+    "action.auto_create_index": "false" 
+  }
+}
+```
+
 ### How to back up Elasticsearch data
 
 #### Register a snapshot repository
